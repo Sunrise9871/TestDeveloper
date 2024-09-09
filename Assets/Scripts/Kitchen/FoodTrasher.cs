@@ -1,12 +1,10 @@
-using System;
-
 using UnityEngine;
-
 using JetBrains.Annotations;
 
 namespace CookingPrototype.Kitchen {
 	[RequireComponent(typeof(FoodPlace))]
 	public sealed class FoodTrasher : MonoBehaviour {
+		private const float DOUBLE_TAP_TIME = 0.5f;
 
 		FoodPlace _place = null;
 		float     _timer = 0f;
@@ -21,7 +19,20 @@ namespace CookingPrototype.Kitchen {
 		/// </summary>
 		[UsedImplicitly]
 		public void TryTrashFood() {
-			throw new NotImplementedException("TryTrashFood: this feature is not implemented");
+			if ( Time.realtimeSinceStartup - _timer > DOUBLE_TAP_TIME ) {
+				_timer = Time.realtimeSinceStartup;
+				return;
+			}
+			_timer = 0f;
+
+			if ( _place.IsFree ) {
+				return;
+			}
+
+			var food = _place.CurFood;
+			if ( food.CurStatus == Food.FoodStatus.Overcooked ) {
+				_place.FreePlace();
+			}
 		}
 	}
 }
